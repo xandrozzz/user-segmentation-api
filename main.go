@@ -12,7 +12,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	server := http.New(os.Getenv("SERVER_ADDRESS"))
+	server := http.NewServer(os.Getenv("SERVER_ADDRESS"))
 	server.StartServer()
 
 }
