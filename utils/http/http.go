@@ -140,7 +140,7 @@ func (s Server) postUsers(c *gin.Context) {
 
 	segments := s.db.GetAllSegments()
 
-	s.segmentList = UpdateCounters(s.segmentList, segments)
+	s.segmentList = s.updateCounters(s.segmentList, segments)
 
 	for i, counter := range s.segmentList {
 		s.segmentList[i].Count = counter.Count + 1
@@ -173,7 +173,14 @@ func (s Server) getUserSegmentsByID(c *gin.Context) {
 	}
 
 	segments := s.db.FindUserSegments(id)
-	c.IndentedJSON(http.StatusOK, segments)
+
+	var segmentSlice []string
+
+	for _, segment := range segments {
+		segmentSlice = append(segmentSlice, segment.Name)
+	}
+
+	c.IndentedJSON(http.StatusOK, segmentSlice)
 }
 
 func (s Server) deleteSegmentByName(c *gin.Context) {
@@ -241,7 +248,7 @@ func (s Server) changeUserSegmentsByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Changed user segments"})
 }
 
-func UpdateCounters(list1 []models.SegmentCounter, list2 []models.Segment) []models.SegmentCounter {
+func (s Server) updateCounters(list1 []models.SegmentCounter, list2 []models.Segment) []models.SegmentCounter {
 	for _, counter := range list2 {
 		found := false
 		for _, oldCounter := range list1 {
@@ -251,6 +258,17 @@ func UpdateCounters(list1 []models.SegmentCounter, list2 []models.Segment) []mod
 		}
 		if !found {
 			list1 = append(list1, models.NewCounter(counter))
+		}
+	}
+	for _, newCounter := range list1 {
+		found := false
+		for _, counter := range list2 {
+			if counter.Name == newCounter.Segment.Name {
+				found = true
+			}
+		}
+		if !found {
+			s.db.DeleteSegment(newCounter.Segment.Name)
 		}
 	}
 	return list1
