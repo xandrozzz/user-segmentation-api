@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"os"
 	"user-segmentation-api/utils/http"
 )
 
@@ -12,7 +11,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	server := http.NewServer(os.Getenv("SERVER_ADDRESS"))
+	server := http.NewServer(":8000")
 	server.StartServer()
 
 }

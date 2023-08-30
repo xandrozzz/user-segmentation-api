@@ -21,7 +21,16 @@ func NewDatabase(driverName string) Database {
 	var d Database
 	d.driverName = driverName
 	d.dbName = "sys"
-	db, err := sql.Open("mysql", os.Getenv("DATA_SOURCE"))
+
+	USER := os.Getenv("DB_USER")
+	PASS := os.Getenv("DB_PASSWORD")
+	HOST := os.Getenv("DB_HOST")
+	DBNAME := os.Getenv("DB_NAME")
+
+	URL := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", USER, PASS,
+		HOST, DBNAME)
+
+	db, err := sql.Open("mysql", URL)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -214,14 +223,17 @@ func (d Database) RemoveTimeoutUsers() {
 			panic(err2.Error())
 		}
 		ttl := stringBuffer.String
-		ttlList := strings.Split(ttl, "-")
-		now := time.Now()
-		ttlYear, _ := strconv.Atoi(ttlList[0])
-		ttlMonth, _ := strconv.Atoi(ttlList[1])
-		ttlDay, _ := strconv.Atoi(ttlList[2])
-		if ttlYear == now.Year() && ttlMonth == int(now.Month()) && ttlDay == now.Day() {
-			d.DeleteUser(user.ID)
+		if ttl != "" {
+			ttlList := strings.Split(ttl, "-")
+			now := time.Now()
+			ttlYear, _ := strconv.Atoi(ttlList[0])
+			ttlMonth, _ := strconv.Atoi(ttlList[1])
+			ttlDay, _ := strconv.Atoi(ttlList[2])
+			if ttlYear == now.Year() && ttlMonth == int(now.Month()) && ttlDay == now.Day() {
+				d.DeleteUser(user.ID)
+			}
 		}
+
 	}
 
 }

@@ -34,7 +34,6 @@ func (s Server) StartServer() {
 	for _, segment := range segments {
 		newCounter := models.NewCounter(segment)
 		s.segmentList = append(s.segmentList, newCounter)
-		print(newCounter.Segment.Name, newCounter.Proportion)
 	}
 
 	router := gin.Default()
@@ -144,7 +143,6 @@ func (s Server) postUsers(c *gin.Context) {
 	s.segmentList = UpdateCounters(s.segmentList, segments)
 
 	for i, counter := range s.segmentList {
-		print(counter.Count, counter.Proportion)
 		s.segmentList[i].Count = counter.Count + 1
 		if s.segmentList[i].Count <= counter.Proportion {
 			var singleList []string
