@@ -95,7 +95,7 @@ func CSVExport(s Server) gin.HandlerFunc {
 		_, err := getStats(statsList)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stat"})
-			return //stop it on error
+			return
 		}
 		c.FileAttachment("./stats.csv", "stats.csv")
 		c.Writer.Header().Set("attachment", "filename=stats.csv")
